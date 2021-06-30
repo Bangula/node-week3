@@ -2,14 +2,10 @@
 import chalk from "chalk"
 import datePrompt from "date-prompt";
 import inquirer from "inquirer";
-import {writeData} from "./dataActions"
-
-const chechActiveFasts = () => {
-    return false;
-}
+import { writeData, checkActiveFasts } from "./dataActions"
 
 const confirmAnswerValidator = async (input) => {
-    if (isNaN(input) || Number(input) > 48) {
+    if (isNaN(input) || Number(input) > 48 || Number(input) < 1) {
        return ("Please provide valid number of hours (example: 16)");
     }
     return true;
@@ -30,7 +26,7 @@ const startFast = () => {
     datePrompt('Start Date: (When fasting should begin)')
     .then(isoStr => {
         inquirer.prompt(questions).then((answers) => {
-            writeData({start_date: isoStr, fast_type: answers.fast_type})
+            writeData({start_date: isoStr, fast_type: Number(answers.fast_type)})
           }).catch(err => console.log(err));
     })
     .catch(isoStr => console.log('Aborted with', isoStr))}
@@ -45,9 +41,9 @@ const printFastStatus = () => {
         `);
 }
 
-export function processUserAction(options){
-    let activeStatus = chechActiveFasts();
-
+export async function processUserAction(options){
+    let activeStatus = await checkActiveFasts();
+    console.log("test", activeStatus)
     if(options.action == "status"){
         if(activeStatus) console.log(`\n ${chalk.bold.blue("There is no active fast, type 'zero start' in terminal to start with fast.")} \n`);
         else  printFastStatus();
