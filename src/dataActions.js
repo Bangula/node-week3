@@ -9,16 +9,12 @@ export function readData(){
                 reject(new Error(err));
             } else {
                 if(data){
-                    let obj = JSON.parse(data); //now it an object
+                    let obj = JSON.parse(data);
                     let fasts = obj || [];
-                    // obj.table.push({id: 2, square:3}); //add some data
-                    // json = JSON.stringify(obj); //convert it back to json
-                    // fs.writeFile('myjsonfile.json', json, 'utf8', callback); // write it back 
                     resolve(fasts);
                 }else resolve ([])                
             }});
-     })
-        
+     })        
 }
 
 export async function checkActiveFasts(){
@@ -39,7 +35,7 @@ export async function checkActiveFasts(){
 
 export async function writeData(values, updateFast){
     let endDate = moment(values.start_date).add(values.fast_type, 'hours')
-   
+    
     try{
         let fasts = await readData();  
         let lastFastTypeValue = fasts ? fasts.length ? fasts[fasts.length - 1].fast_type : values.fast_type : values.fast_type;
@@ -62,6 +58,11 @@ export async function writeData(values, updateFast){
     }
     catch(err){
         let fasts = [];
+        let newFast = {            
+            start_date: moment(values.start_date).format(),
+            fast_type: values.fast_type,
+            end_date: endDate.format()
+        }
         fasts.push(newFast);
         let json = JSON.stringify(fasts);
         fs.writeFile(`${__dirname}/fasts.json`, json, 'utf8', (err, data) => {

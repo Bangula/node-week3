@@ -75,34 +75,28 @@ const endFast = async () => {
     } 
 }
 
-const printAllFasts = async () => {
-    try {
-        let data = await readData();
-        console.log(data)
+const printAllFasts = async (mssg) => {
+    readData().then(data => Promise.all(data))
+        .then(data => {
             if(data.length){
-                console.log("success-2")
-
-                data.forEach(item => {
-                    let isActive = moment(item.end_date).format() > moment().format() ? true : false
-                    let difference = new Date().getTime() - new Date(item.start_date).getTime();
-                    let formatedDiff = Math.floor(difference/(1000*60*60)) + ":" + Math.floor(difference/(1000*60))%60 + ":" + Math.floor(difference/1000)%60;
-                    console.log(`
-                        Fast Status: - ${chalk.green(isActive ? 'Active' : 'Inactive')}
-                        Started Fasting - ${chalk.blue(item.start_date)}
-                        Fast Ending - ${chalk.blue(item.end_date)}
-                        Elapsed Time - ${chalk.blue(formatedDiff)}
-                        Fast Type - ${chalk.yellow(`${item.fast_type} hours`)} \n   
-                        ${mssg === "start" ? chalk.red("If you want to start new Fast, you need to end the current active fast.") : ""}         
-                        `);
-                })
+            data.forEach(item => {
+                let isActive = moment(item.end_date).format() > moment().format() ? true : false
+                let difference = new Date().getTime() - new Date(item.start_date).getTime();
+                let formatedDiff = Math.floor(difference/(1000*60*60)) + ":" + Math.floor(difference/(1000*60))%60 + ":" + Math.floor(difference/1000)%60;
+                console.log(`
+                    Fast Status: - ${isActive ? chalk.green('Active') : chalk.red('Inactive')}
+                    Started Fasting - ${chalk.blue(item.start_date)}
+                    Fast Ending - ${chalk.blue(item.end_date)}
+                    Elapsed Time - ${chalk.blue(formatedDiff)}
+                    Fast Type - ${chalk.yellow(`${item.fast_type} hours`)}
+                    ${mssg === "start" ? chalk.red("If you want to start new Fast, you need to end the current active fast.") : ""}         
+                    `);
+            })
             }else  console.log(`\n ${chalk.bold.blue("You have no Fasts at this moment, if you want to start new fast, type 'zero start' in your terminal.")} \n`);
-      
-    }
-    catch(err){
-        console.log("error-2")
 
-        console.log(`\n ${chalk.bold.blue("You have no Fasts at this moment, if you want to start new fast, type 'zero start' in your terminal.")} \n`);
-    } 
+
+        })
+        .catch(err => console.log(`\n ${chalk.bold.blue("You have no Fasts at this moment, if you want to start new fast, type 'zero start' in your terminal.")} \n`));  
 }
 
 export async function processUserAction(options){
